@@ -1,0 +1,35 @@
+Kullanılan veri kümesi: Hava_durumu
+Veri kümesi hakkında: Analizi yapılan veri kümesinde bir bölgede dönemsel olarak hava durumu değişimleri, nem miktarı değişimleri, sıcaklık seviyeleri, deniz seviyesi basıncının maksimum Ve minimum değerleri, görüş mesafesinin minimum ve ortalama değerleri ve rüzgar hızları değerleri hakkında ortalama, maksimum değer, minimum değer gibi veriler yer almaktadır
+			ANALİZLER
+RIDGELINE PLOTS( Bazı ırkçı söylemlerden dolayı  Joyplot ismi Ridgeline olarak değiştirildi)
+	Gereken Modüller
+-ggridges
+-ggplot2
+	Kodlar
+Kurulum:
+install.packages("ggridges")  #İlk 2 satırda gereken paketler indiriliyor
+install.packages("ggplot2")
+library("ggplot2")   # Library satırlarında ise paketler scriptte kullanılabilir hale getiriliyor
+library("ggridges")
+getwd()  # bu komut veri kümesinin nerede aranacağını gösteriyor(istenirse setwd() ile farklı bir veri yolu belirlenebilir)
+Uygulama:
+veri<-read.table("hava_durumu.txt",header=T,sep=" ",dec=",") #Bu satır ile veri kümemizin bulunduğu dosyadaki verileri “veri” değişkenine atıyoruz. Header başlığının TRUE olması kümenin ilk satırındaki değerleri başlık olarak almasını sağlıyor, sep fonksiyonu her verinin hangi işaret ya da simge ile ayrılacağını gösteriyor. Örneğin burada boşluk kullandık (space), Dec fonksiyonu ise veride bulunun ondalık değerlerin ne ile ayrıldığını belirlemeyi sağlıyor
+ggplot(data = veri, aes(x=Mean.Humidity, y=Month,fill=..x..))+
+  labs(x = "Ortalama Nem Miktarı",
+       y="Aylar",
+       title="Aylara Göre Nem Oranı Degisimi")+
+#Ggplot fonksiyonu çağırarak grafik oluşturuyoruz. Data değişkeni üzerinde çalışacağımız veriyi , aes içinde bulunan x ve y değerleri grafikte analizi yapılacak değerleri , fill ise renklendirilecek tarafı ifade ediyor (..x.. ve ..y.. sabit bir kalıptır. Eksenler bu şekilde ifade edilir). 
+#Labs fonksiyonunda x ,y eksenlerinin ve grafiğin başlıklarını (title) belirliyoruz
+geom_density_ridges_gradient(scale = 3) +
+  scale_fill_viridis( alpha=1 ,begin = 1, end = 0.3,option = "B") +
+  theme_ipsum() +
+  theme(
+    legend.position="none",
+    strip.text.x = element_text(size = 8))+
+  scale_y_discrete(expand = c(0.01, 0)) +
+  scale_x_continuous(expand = c(0.01, 0))
+#Geo density ridges gradient fonksiyonu grafiğin özelliklerini belirlememize yardımcı oluyor. Scale ile oluşan tepeciklerin yüksekliklerini belirliyoruz. Değer ne kaar yüksekse grafik o kadar iç içe giriyor(genelde 2-3,5 arası değerler kullanılır). 
+#Alpha değeri parametreden görselleştirilen değer sıklığını belirler(1 dışında değerler kullanılması grafikte çopu zaman şekil bozuklukları meydana getirecektir).
+#Begin ve end değerleri grafiğin renk düzeninin yoğunluğunu belirler. Varsayılan olarak 0 ve 1 olarak ayarlıdır ancak burada yüksek nemi açıktan koyuya doğru ifade etmek istediğimiz için değerleri tersine çevirip aralığı biraz değiştirdik. Option değeri grafiğin renk skalasını belirler, A,B,C,D ve E seçenekleri vardır (bkz. ? scale_fill_viridis)
+#theme ipsum ve theme fonksiyonları kullandığımız temanın fonksiyonlarıdır
+#Scale x ve y fonksiyonları grafiğin eksen sınırlarını belirlemede kullanılır . İçinde bulunan expand operatörü ile sınırları grafikten 0.01 cm sonrası + 0 olarak belirleyerek gereksiz alanlardan kurtulduk(Örneğin 0 ve 6 olarak belirlersek grafik sadece bu alan arasında oluşur)
